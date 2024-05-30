@@ -7,11 +7,12 @@ int main(int argc, char *argv[]) {
 	int i=0;//contatore
 	int lati[1][24];//array che conterrà le scansioni dei lati scombinati
 	int lati_ins [12][2];//array che contiene gli insiemi degli array dei singoli 12 lati
+	int lati_vero [12][2]={{1,4}, {1,3}, {1,2}, {1,5}, {2,3}, {2,6}, {2,5}, {3,4}, {3,6}, {4,5}, {4,6}, {5,6}};//array che contiene le informazioni dei lati giusti
 	printf("Inserire lati\n");
 	for(i=0; i<24; i++){
 		scanf("%d",& lati[0][i]);//mette i valori messi da me negli array dei lati
 	}
-		
+	
 	lati_ins[0][0]= lati[0][3];//lato di coordinate a,m che deve prendere le informazioni del 4° e del 18° dell'array lati
 	lati_ins[0][1]= lati[0][17];
 	lati_ins[1][0]= lati[0][2];//lato di coordinate b,i (buffer) che deve prendere le informazioni del 3° e del 5° dell'array lati
@@ -36,6 +37,6 @@ int main(int argc, char *argv[]) {
 	lati_ins[10][1]= lati[0][11];
 	lati_ins[11][0]= lati[0][12];//lato di coordinate s,z che deve prendere le informazioni del 13° e del 11° dell'array lati
 	lati_ins[11][1]= lati[0][10];
-
+	
 	return 0;
 }
