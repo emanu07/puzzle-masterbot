@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 	printf("move to sx\n");					//sposta cubo verso sinistra
 	/*fine secondo programma che scansiona i pezzi e riorienta il cubo*/
 	/*inizio parte di ordinamento dei vertici e dei lati*/
-	vertici_ins[0][0]= vertici[0][0];//vertice di coordinate a,n,q che deve prendere le informazioni del 1°, del 16° e del 18° dell'array vertici
+	vertici_ins[0][0]= vertici[0][0];//vertice di coordinate a,n,q  (buffer) che deve prendere le informazioni del 1°, del 16° e del 18° dell'array vertici
 	vertici_ins[0][1]= vertici[0][15];
 	vertici_ins[0][2]= vertici[0][17];
 	vertici_ins[1][0]= vertici[0][3];//vertice di coordinate b,m,j che deve prendere le informazioni del 4°, del 19° e del 5° dell'array vertici
