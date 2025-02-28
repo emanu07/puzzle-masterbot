@@ -1,2 +1,2 @@
 1. orientare_cubo
-2.
+2. scansione_pezzi
