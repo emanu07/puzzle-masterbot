@@ -2,3 +2,4 @@
 2. scansione_pezzi
 3. ordinare_vertici
 4. ordinare_pezzi
+5. sequenza_combinazione_pezzi
