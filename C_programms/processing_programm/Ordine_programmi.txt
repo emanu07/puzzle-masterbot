@@ -1,2 +1,4 @@
 1. orientare_cubo
 2. scansione_pezzi
+3. ordinare_vertici
+4. ordinare_pezzi
