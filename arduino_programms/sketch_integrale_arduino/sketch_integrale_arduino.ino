@@ -24,15 +24,12 @@ int m=0;																					  	//variabile che conterrà l'informazione del num
 int parita=0;																					//contatore per vedere quante volte permuta i vertici, in modo da capire se eseguire una parità o meno
 //variabili utili per la parte di programma "sequenza_combinazione_pezzi" sono gia stati precedentemente nominati, basterà solamente reinizializzare le variabili a 0 a inizio programma
 
-void setup() {
+void setup() {//vanno aggiunte tutte le piedinature di arduino per il robot Rubik
 
 
 }
-void go(int st){
-  stato=st;//va alla fase che ho detto io
-  first=false;//per riutilizzare la variabile first anche nelle altre fasi
-}
-void loop() {
+
+void loop() {//funzione contenente le 4 fasi principali della risoluzione del cubo di Rubik
   switch (stato){
     case 0:
       orienta();//equivale al programma "orientare_cubo"
@@ -44,11 +41,12 @@ void loop() {
       ordina();//equivale ai programmi "ordinare_vertici", "ordinare_lati", "sequenza_combinazione_vertici" e "sequenza_combinazione_pezzi"
       break;
 		case 3:
-			attesa()//fase di attesa dove non fa nulla perchè il cubo è stato risolto
+			attesa();//fase di attesa dove non fa nulla perchè il cubo è stato risolto
 			break;
   }
 
 }
+
 void orienta(){
   if (first==true){
     scanf("%d",& c1);						//guardo che colore è il centro in cima
@@ -81,9 +79,10 @@ void orienta(){
   }
   go(1);//va alla fase 1
 }
+
 void scansiona(){
   if (first=true){
-		printf("Move scan arm to dx\n");		//muove il braccio che scansiona i pezzi verso destra
+		printf("Move scan arm to dx\n");		//muove il braccio che scansiona i pezzi verso destra -->ora va verso i lati, quindi richiamare la funzione corretta che porti lo scan_arm fino ai lati
 		for(nf=0; nf<6; nf++){					//crea funzione per ogni faccia del cubo
 			for(ns=0; ns<4; ns++, t++){			//crea funzione per ogni scansione della faccia
 				scanf("%d",& lati[0][t]);			//salva il pezzo nell'array dei lati
@@ -105,7 +104,7 @@ void scansiona(){
 		printf("rotate 270\n");					//ruota il cubo di 270 orari
 		printf("move to sx\n");					//sposta cubo verso sinistra
 		t=0;									//faccio si che la variabile t ritorni a 0 perche dovrò riusarla per l'altro array
-		printf("Move scan arm dx\n rotate 45\n");//muove il braccio che scansiona i vertici e ruota di 45 gradi il cassetto in modo da legere bene i vertici -->non so se debba andare così
+		printf("Move scan arm dx\n rotate 45\n");//muove il braccio che scansiona i vertici e ruota di 45 gradi il cassetto in modo da legere bene i vertici -->non so se debba andare così. Richiamare la funzione corretta che porti lo scan_arm fino ai vertici
 		for(nf=0; nf<6; nf++){					//crea funzione per ogni faccia del cubo
 			for(ns=0; ns<4; ns++, t++){			//crea funzione per ogni scansione della faccia
 				scanf("%d",& vertici[0][t]);		//salva il pezzo nell'array dei vertici
@@ -130,30 +129,31 @@ void scansiona(){
 	}
 	go(2);//va alla fase 2
 }
+
 void ordina(){
 	if(first==true){
-		vertici_ins[0][0]= vertici[0][0];//vertice di coordinate a,n,q che deve prendere le informazioni del 1Ãƒâ€šÃ‚Â°, del 16Ãƒâ€šÃ‚Â° e del 18Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[0][0]= vertici[0][0];//vertice di coordinate a,n,q che deve prendere le informazioni del 1esimo, del 16esimo e del 18esimo dell'array vertici
 		vertici_ins[0][1]= vertici[0][15];
 		vertici_ins[0][2]= vertici[0][17];
-		vertici_ins[1][0]= vertici[0][3];//vertice di coordinate b,m,j che deve prendere le informazioni del 4Ãƒâ€šÃ‚Â°, del 19Ãƒâ€šÃ‚Â° e del 5Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[1][0]= vertici[0][3];//vertice di coordinate b,m,j che deve prendere le informazioni del 4esimo, del 19esimo e del 5esimo dell'array vertici
 		vertici_ins[1][1]= vertici[0][18];
 		vertici_ins[1][2]= vertici[0][4];
-		vertici_ins[2][0]= vertici[0][2];//vertice di coordinate c,i,f che deve prendere le informazioni del 3Ãƒâ€šÃ‚Â°, del 6Ãƒâ€šÃ‚Â° e del 22Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[2][0]= vertici[0][2];//vertice di coordinate c,i,f che deve prendere le informazioni del 3esimo, del 6esimo e del 22esimo dell'array vertici
 		vertici_ins[2][1]= vertici[0][5];
 		vertici_ins[2][2]= vertici[0][21];
-		vertici_ins[3][0]= vertici[0][1];//vertice di coordinate d,e,r che deve prendere le informazioni del 2Ãƒâ€šÃ‚Â°, del 23Ãƒâ€šÃ‚Â° e del 15Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[3][0]= vertici[0][1];//vertice di coordinate d,e,r che deve prendere le informazioni del 2esimo, del 23esimo e del 15esimo dell'array vertici
 		vertici_ins[3][1]= vertici[0][22];
 		vertici_ins[3][2]= vertici[0][14];
-		vertici_ins[4][0]= vertici[0][16];//vertice di coordinate o,t,z che deve prendere le informazioni del 17Ãƒâ€šÃ‚Â°, del 13Ãƒâ€šÃ‚Â° e del 12Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[4][0]= vertici[0][16];//vertice di coordinate o,t,z che deve prendere le informazioni del 17esimo, del 13esimo e del 12esimo dell'array vertici
 		vertici_ins[4][1]= vertici[0][12];
 		vertici_ins[4][2]= vertici[0][11];
-		vertici_ins[5][0]= vertici[0][7];//vertice di coordinate k,p,x che deve prendere le informazioni del 8Ãƒâ€šÃ‚Â°, del 20Ãƒâ€šÃ‚Â° e del 9Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[5][0]= vertici[0][7];//vertice di coordinate k,p,x che deve prendere le informazioni del 8esimo, del 20esimo e del 9esimo dell'array vertici
 		vertici_ins[5][1]= vertici[0][19];
 		vertici_ins[5][2]= vertici[0][8];
-		vertici_ins[6][0]= vertici[0][20];//vertice di coordinate g,l,v che deve prendere le informazioni del 21Ãƒâ€šÃ‚Â°, del 7Ãƒâ€šÃ‚Â° e del 10Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[6][0]= vertici[0][20];//vertice di coordinate g,l,v che deve prendere le informazioni del 21esimo, del 7esimo e del 10esimo dell'array vertici
 		vertici_ins[6][1]= vertici[0][6];
 		vertici_ins[6][2]= vertici[0][9];
-		vertici_ins[7][0]= vertici[0][23];//vertice di coordinate h,s,u che deve prendere le informazioni del 24Ãƒâ€šÃ‚Â°, del 14Ãƒâ€šÃ‚Â° e del 11Ãƒâ€šÃ‚Â° dell'array vertici
+		vertici_ins[7][0]= vertici[0][23];//vertice di coordinate h,s,u che deve prendere le informazioni del 24esimo, del 14esimo e del 11esimo dell'array vertici
 		vertici_ins[7][1]= vertici[0][13];
 		vertici_ins[7][2]= vertici[0][10];
 	
@@ -162,29 +162,29 @@ void ordina(){
 		le informazioni di ogni singolo lato. In questo modo posso nominare arbitrariamente ogni posizione del cubo*/
 	
 		
-		lati_ins[0][0]= lati[0][3];//lato di coordinate a,m che deve prendere le informazioni del 4Ã‚Â° e del 18Ã‚Â° dell'array lati
+		lati_ins[0][0]= lati[0][3];//lato di coordinate a,m che deve prendere le informazioni del 4esimo e del 18esimo dell'array lati
 		lati_ins[0][1]= lati[0][17];
-		lati_ins[1][0]= lati[0][2];//lato di coordinate b,i (buffer) che deve prendere le informazioni del 3Ã‚Â° e del 5Ã‚Â° dell'array lati
+		lati_ins[1][0]= lati[0][2];//lato di coordinate b,i (buffer) che deve prendere le informazioni del 3esimo e del 5esimo dell'array lati
 		lati_ins[1][1]= lati[0][4];
-		lati_ins[2][0]= lati[0][1];//lato di coordinate c,e che deve prendere le informazioni del 2Ã‚Â° e del 22Ã‚Â° dell'array lati
+		lati_ins[2][0]= lati[0][1];//lato di coordinate c,e che deve prendere le informazioni del 2esimo e del 22esimo dell'array lati
 		lati_ins[2][1]= lati[0][21];
-		lati_ins[3][0]= lati[0][0];//lato di coordinate d,q che deve prendere le informazioni del 1Ã‚Â° e del 15Ã‚Â° dell'array lati
+		lati_ins[3][0]= lati[0][0];//lato di coordinate d,q che deve prendere le informazioni del 1esimo e del 15esimo dell'array lati
 		lati_ins[3][1]= lati[0][14];
-		lati_ins[4][0]= lati[0][20];//lato di coordinate f,l che deve prendere le informazioni del 21Ã‚Â° e del 6Ã‚Â° dell'array lati
+		lati_ins[4][0]= lati[0][20];//lato di coordinate f,l che deve prendere le informazioni del 21esimo e del 6esimo dell'array lati
 		lati_ins[4][1]= lati[0][5];
-		lati_ins[5][0]= lati[0][23];//lato di coordinate g,u che deve prendere le informazioni del 24Ã‚Â° e del 10Ã‚Â° dell'array lati
+		lati_ins[5][0]= lati[0][23];//lato di coordinate g,u che deve prendere le informazioni del 24esimo e del 10esimo dell'array lati
 		lati_ins[5][1]= lati[0][9];
-		lati_ins[6][0]= lati[0][22];//lato di coordinate h,r che deve prendere le informazioni del 23Ã‚Â° e del 14Ã‚Â° dell'array lati
+		lati_ins[6][0]= lati[0][22];//lato di coordinate h,r che deve prendere le informazioni del 23esimo e del 14esimo dell'array lati
 		lati_ins[6][1]= lati[0][13];
-		lati_ins[7][0]= lati[0][7];//lato di coordinate j,p che deve prendere le informazioni del 8Ã‚Â° e del 19Ã‚Â° dell'array lati
+		lati_ins[7][0]= lati[0][7];//lato di coordinate j,p che deve prendere le informazioni del 8esimo e del 19esimo dell'array lati
 		lati_ins[7][1]= lati[0][18];
-		lati_ins[8][0]= lati[0][6];//lato di coordinate k,v che deve prendere le informazioni del 7Ã‚Â° e del 9Ã‚Â° dell'array lati
+		lati_ins[8][0]= lati[0][6];//lato di coordinate k,v che deve prendere le informazioni del 7esimo e del 9esimo dell'array lati
 		lati_ins[8][1]= lati[0][8];
-		lati_ins[9][0]= lati[0][16];//lato di coordinate n,t che deve prendere le informazioni del 17Ã‚Â° e del 16Ã‚Â° dell'array lati
+		lati_ins[9][0]= lati[0][16];//lato di coordinate n,t che deve prendere le informazioni del 17esimo e del 16esimo dell'array lati
 		lati_ins[9][1]= lati[0][15];
-		lati_ins[10][0]= lati[0][19];//lato di coordinate o,x che deve prendere le informazioni del 20Ã‚Â° e del 12Ã‚Â° dell'array lati
+		lati_ins[10][0]= lati[0][19];//lato di coordinate o,x che deve prendere le informazioni del 20esimo e del 12esimo dell'array lati
 		lati_ins[10][1]= lati[0][11];
-		lati_ins[11][0]= lati[0][12];//lato di coordinate s,z che deve prendere le informazioni del 13Ã‚Â° e del 11Ã‚Â° dell'array lati
+		lati_ins[11][0]= lati[0][12];//lato di coordinate s,z che deve prendere le informazioni del 13esimo e del 11esimo dell'array lati
 		lati_ins[11][1]= lati[0][10];
 	
 	
@@ -445,6 +445,610 @@ void ordina(){
 	go(3);//vado alla terza fase
 
 }
+
 void attesa(){
 	//non deve fare nulla
+}
+
+void go(int st){//funzione che serve per la macchina a stati finiti, cambierà dunque fase dopo averne finita una. Equivale alla transizione dei programmi dei PLC
+  stato=st;//va alla fase che ho detto io
+  first=false;//per riutilizzare la variabile first anche nelle altre fasi
+}
+
+//Questa funzione serve a permutare i vertici di buffer con quello da sistemare
+void perm(){//perm che scambia ilvertice di buffer con quello preso in considerazione 
+	printf("3 move to sx\n action 270\n 3 move to sx\n action 90\n move to sx\n action 90\n 3 move to sx\n action 90\n move to sx\n");//stampa la funzione
+	printf("action 270\n 3 move to sx\n action 270\n move to sx\n action 90\n rotate 90\n move to sx\n action 90\n 3 move to sx\n");//stampa la funzione 
+	printf("action 270\n rotate 90\n move to sx\n action 270\n 3 move to sx\n action 90\n move to sx\n action 90\n 3 move to sx\n");//stampa la funzione
+	printf("action 90\n rotate 90\n 3 move to sx\n action 270\n move to sx\n action 270\n rotate 90\n move to sx\n ");//stampa la funzione
+}
+
+//Questa funzione serve a permutare il lato di buffer con quello da sistemare
+void t_perm(){//funzione che stampa le mosse che svolgono la T perm
+	printf("3 move to sx\n action 270\n 3 move to sx\n action 270\n move to sx\n action 90\n 3 move to sx\n");//stampa la funzione
+	printf("action 90\n move to sx\n action 90\n rotate 90\n move to sx\n action 270\n rotate 90\n");//stampa la funzione
+	printf("move to sx\n rotate 90\n move to sx\n action 180\n 3 move to sx\n action 90\n move to sx\n");//stampa la funzione
+	printf("action 90\n 3 move to sx\n action 90\n move to sx\n action 270\n 3 move to sx\n action 270\n");//stampa la funzione
+	printf("move to sx\n action 90\n rotate 90\n move to sx\n action 90\n rotate 90\n 3 move to sx\n rotate 270\n\n");//stampa la funzione
+}
+
+//Questa funzione serve a permutare veramente le informazioni dei vertici e stampa le informazioni che servono a spostare i singoli vertici
+int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma che identifica come permutare ogni singolo vertice in base alla posizione e che mi restituirà l'informazione per risolvere i vertici uno ad uno
+	int a=0;//variabile che conterrà l'informazione da mettere
+	int b=0;//variabile che conterrà l'informazione del buffer
+	if(d==0){//se la prima posizione scombinata che troviamo è quella relativa alla prima postazione codificata del vertice
+		switch(i){
+			case 0:{//se i è uguale a 0 (impossibile ma la mettiamo lo stesso, non può commutare la stessa zona di buffer), avvia la risoluzione per la posizione "a"
+				printf("error\n");//stampa errore
+				break;//esce dallo switch
+			}
+			case 1:{//se i è uguale a 1, avvia la risoluzione per la posizione "b"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "b"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "b"
+				vertici_ins[i][d]=a;//metto in zona "b" la prima informazione di buffer
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "j"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "j"
+				vertici_ins[i][2]=a;//metto in zona "j" la seconda informazione di buffer
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "m"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "m"
+				vertici_ins[i][1]=a;//metto in zona "m" l'ultima informazione di buffer
+				printf("3 move to sx\n action 270\n move to sx\n action 90\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("action 270\n 3 move to sx\n action 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 2:{//se i è uguale a 2, avvia la risoluzione per la posizione "c"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "c"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "c"
+				vertici_ins[i][d]=a;//metto in zona "c" la prima informazione di buffer
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "f"
+				vertici_ins[0][1]=b;//metto in seconda zona buffer l'informazione della zona "f"
+				vertici_ins[i][2]=a;//metto in zona "f" la seconda informazione di buffer
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "i"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "i"
+				vertici_ins[i][1]=a;//metto in zona "i" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("rotate 90\n move to sx\n action 90\n 3 move to sx\n rotate 270\n ");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 3:{//se i è uguale a 3, avvia la risoluzione per la posizione "d"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "d"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "d"
+				vertici_ins[i][d]=a;//metto in zona "d" la prima informazione di buffer
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "r"
+				vertici_ins[0][1]=b;//metto in seconda zona buffer l'informazione della zona "r"
+				vertici_ins[i][2]=a;//metto in zona "r" la seconda informazione di buffer
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "e"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "e"
+				vertici_ins[i][1]=a;//metto in zona "e" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 270\n rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n action 90\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 4:{//se i è uguale a 4, avvia la risoluzione per la posizione "o"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "o"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "o"
+				vertici_ins[i][d]=a;//metto in zona "o" la prima informazione di buffer
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "z"
+				vertici_ins[0][1]=b;//metto in seconda zona buffer l'informazione della zona "z"
+				vertici_ins[i][2]=a;//metto in zona "z" la seconda informazione di buffer
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "t"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "t"
+				vertici_ins[i][1]=a;//metto in zona "t" l'ultima informazione di buffer
+				printf("action 90\n 3 move to sx\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("3 move to sx\n action 90\n move to sx\n action 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 5:{//se i è uguale a 5, avvia la risoluzione per la posizione "k"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "k"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "k"
+				vertici_ins[i][d]=a;//metto in zona "k" la prima informazione di buffer			
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "x"
+				vertici_ins[0][1]=b;//metto in seconda zona buffer l'informazione della zona "x"
+				vertici_ins[i][2]=a;//metto in zona "x" la seconda informazione di buffer
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "p"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "p"
+				vertici_ins[i][1]=a;//metto in zona "p" l'ultima informazione di buffer
+				printf("3 move to sx\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("3 move to sx\n action 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 6:{//se i è uguale a 6, avvia la risoluzione per la posizione "g"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "g"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "g"
+				vertici_ins[i][d]=a;//metto in zona "g" la prima informazione di buffer
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "v"
+				vertici_ins[0][1]=b;//metto in seconda zona buffer l'informazione della zona "v"
+				vertici_ins[i][2]=a;//metto in zona "v" la seconda informazione di buffer				
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "l"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "l"
+				vertici_ins[i][1]=a;//metto in zona "l" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 270\n 3 move to sx\n action 270\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("rotate 90\n action 90\n move to sx\n action 90\n 3 move to sx\n rotate 270\n ");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 7:{//se i è uguale a 7, avvia la risoluzione per la posizione "h"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "h"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "h"
+				vertici_ins[i][d]=a;//metto in zona "h" la prima informazione di buffer				
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "s"
+				vertici_ins[0][1]=b;//metto in seconda zona buffer l'informazione della zona "s"
+				vertici_ins[i][1]=a;//metto in zona "s" la seconda informazione di buffer			
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "u"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "u"
+				vertici_ins[i][2]=a;//metto in zona "u" l'ultima informazione di buffer
+				printf("action 270\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("action 90\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			default: //se in i c'è qualcosa di diverso da questi caratteri
+				printf("errore\n");
+				break;//esce dallo switch
+			
+		}
+	}
+	
+	else if  (d==1){//se la prima posizione scombinata che troviamo è quella relativa alla seconda postazione codificata del vertice
+		switch(i){
+			case 0:{//se i è uguale a 0 (impossibile ma la mettiamo lo stesso, non può commutare la stessa zona di buffer), avvia la risoluzione per la posizione "n"
+				printf("error\n");//stampa errore
+				break;//esce dallo switch
+			}
+			case 1:{//se i è uguale a 1, avvia la risoluzione per la posizione "m"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "m"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "m"
+				vertici_ins[i][d]=a;//metto in zona "m" la prima informazione di buffer				
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "b"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "b"
+				vertici_ins[i][0]=a;//metto in zona "b" la seconda informazione di buffer		
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "j"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "j"
+				vertici_ins[i][2]=a;//metto in zona "j" l'ultima informazione di buffer
+				printf("3 move to sx\n action 90\n rotate 90\n move to sx\n action 270\n rotate 90\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("rotate 90\n move to sx\n rotate 270\n action 90\n 3 move to sx\n rotate 270\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 2:{//se i è uguale a 2, avvia la risoluzione per la posizione "i"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "i"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "i"
+				vertici_ins[i][d]=a;//metto in zona "i" la prima informazione di buffer					
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "c"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "c"
+				vertici_ins[i][0]=a;//metto in zona "c" la seconda informazione di buffer			
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "f"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "f"
+				vertici_ins[i][2]=a;//metto in zona "f" l'ultima informazione di buffer
+				printf("3 move to sx\n action 90\n move to sx\n ");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("3 move to sx\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 3:{//se i è uguale a 3, avvia la risoluzione per la posizione "e"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "e"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "e"
+				vertici_ins[i][d]=a;//metto in zona "e" la prima informazione di buffer						
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "d"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "d"
+				vertici_ins[i][0]=a;//metto in zona "d" la seconda informazione di buffer				
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "r"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "r"
+				vertici_ins[i][2]=a;//metto in zona "r" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 90\n 3 move to sx\n action 270\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("rotate 90\n action 90\n move to sx\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 4:{//se i è uguale a 4, avvia la risoluzione per la posizione "t"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "t"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "t"
+				vertici_ins[i][d]=a;//metto in zona "t" la prima informazione di buffer							
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "o"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "o"
+				vertici_ins[i][0]=a;//metto in zona "o" la seconda informazione di buffer				
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "z"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "z"
+				vertici_ins[i][2]=a;//metto in zona "z" l'ultima informazione di buffer
+				printf("action 180\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("action 180\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 5:{//se i è uguale a 5, avvia la risoluzione per la posizione "p"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "p"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "p"
+				vertici_ins[i][d]=a;//metto in zona "p" la prima informazione di buffer								
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "k"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "k"
+				vertici_ins[i][0]=a;//metto in zona "k" la seconda informazione di buffer					
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "x"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "x"
+				vertici_ins[i][2]=a;//metto in zona "x" l'ultima informazione di buffer
+				printf("action 90\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("action 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 6:{//se i è uguale a 6, avvia la risoluzione per la posizione "l"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "l"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "l"
+				vertici_ins[i][d]=a;//metto in zona "l" la prima informazione di buffer			
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "g"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "g"
+				vertici_ins[i][0]=a;//metto in zona "g" la seconda informazione di buffer		
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "v"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "v"
+				vertici_ins[i][2]=a;//metto in zona "v" l'ultima informazione di buffer
+				//cubo giÃƒÆ’Ã‚Â  in posizione
+				perm();//stampa la permutazione dei vertici
+				//cubo giÃƒÆ’Ã‚Â  rimesso a posto
+				break;//esce dallo switch
+			}
+			case 7:{//se i è uguale a 7, avvia la risoluzione per la posizione "s"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "s"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "s"
+				vertici_ins[i][d]=a;//metto in zona "s" la prima informazione di buffer				
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][2];//associo a b l'informazione della zona "u"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "u"
+				vertici_ins[i][2]=a;//metto in zona "u" la seconda informazione di buffer		
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "h"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "h"
+				vertici_ins[i][0]=a;//metto in zona "h" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 180\n rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n action 180\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			default: //se in i c'è qualcosa di diverso da questi caratteri
+				printf("errore\n");
+				break;//esce dallo switch
+		}
+	}
+	
+	else if(d==2){//se la prima posizione scombinata che troviamo è quella relativa all'ultima postazione codificata del vertice
+		switch(i){
+			case 0:{//se i è uguale a 0 (impossibile ma la mettiamo lo stesso, non può commutare la stessa zona di buffer), avvia la risoluzione per la posizione "q"
+				printf("error\n");//stampa errore
+				break;//esce dallo switch
+			}
+			case 1:{//se i è uguale a 1, avvia la risoluzione per la posizione "j"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "j"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "j"
+				vertici_ins[i][d]=a;//metto in zona "j" la prima informazione di buffer								
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "m"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "m"
+				vertici_ins[i][1]=a;//metto in zona "m" la seconda informazione di buffer		
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "b"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "b"
+				vertici_ins[i][0]=a;//metto in zona "b" l'ultima informazione di buffer
+				printf("3 move to sx\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("3 move to sx\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 2:{//se i è uguale a 2, avvia la risoluzione per la posizione "f"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "f"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "f"
+				vertici_ins[i][d]=a;//metto in zona "f" la prima informazione di buffer								
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "i"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "i"
+				vertici_ins[i][1]=a;//metto in zona "i" la seconda informazione di buffer		
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "c"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "c"
+				vertici_ins[i][0]=a;//metto in zona "c" l'ultima informazione di buffer
+				printf("3 move to sx\n action 180\n move to sx\n action 90\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("action 270\n 3 move to sx\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 3:{//se i è uguale a 3, avvia la risoluzione per la posizione "r"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "r"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "r"
+				vertici_ins[i][d]=a;//metto in zona "r" la prima informazione di buffer						
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "e"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "e"
+				vertici_ins[i][1]=a;//metto in zona "e" la seconda informazione di buffer		
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "d"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "d"
+				vertici_ins[i][0]=a;//metto in zona "d" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 180\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("rotate 90\n move to sx\n action 180\n 3 move to sx\nrotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 4:{//se i è uguale a 4, avvia la risoluzione per la posizione "z"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "z"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "z"
+				vertici_ins[i][d]=a;//metto in zona "z" la prima informazione di buffer											
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "t"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "t"
+				vertici_ins[i][1]=a;//metto in zona "t" la seconda informazione di buffer					
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "o"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "o"
+				vertici_ins[i][0]=a;//metto in zona "o" l'ultima informazione di buffer
+				printf("action 270\n rotate 90\n move to sx\n action 90\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("rotate 90\n move to sx\n action 270\n 3 move to sx\n rotate 270\n action 90\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 5:{//se i è uguale a 5, avvia la risoluzione per la posizione "x"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "x"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "x"
+				vertici_ins[i][d]=a;//metto in zona "x" la prima informazione di buffer											
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "p"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "p"
+				vertici_ins[i][1]=a;//metto in zona "p" la seconda informazione di buffer					
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "k"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "k"
+				vertici_ins[i][0]=a;//metto in zona "k" l'ultima informazione di buffer
+				printf("3 move to sx\n action 180\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 90\n 3 move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("move to sx\n rotate 270\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 6:{//se i è uguale a 6, avvia la risoluzione per la posizione "v"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "v"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "v"
+				vertici_ins[i][d]=a;//metto in zona "v" la prima informazione di buffer											
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "l"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "l"
+				vertici_ins[i][1]=a;//metto in zona "l" la seconda informazione di buffer					
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "g"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "g"
+				vertici_ins[i][0]=a;//metto in zona "g" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			case 7:{//se i è uguale a 7, avvia la risoluzione per la posizione "u"
+				a=vertici_ins[0][0];//associo ad a la prima informazione di buffer
+				b=vertici_ins[i][d];//associo a b l'informazione della zona "u"
+				vertici_ins[0][0]=b;//metto in prima zona buffer l'informazione della zona "u"
+				vertici_ins[i][d]=a;//metto in zona "u" la prima informazione di buffer											
+				a=vertici_ins[0][1];//associo ad a la seconda informazione di buffer
+				b=vertici_ins[i][0];//associo a b l'informazione della zona "h"
+				vertici_ins[0][1]=b;//metto in prima zona buffer l'informazione della zona "h"
+				vertici_ins[i][0]=a;//metto in zona "h" la seconda informazione di buffer		
+				a=vertici_ins[0][2];//associo ad a l'ultima informazione di buffer
+				b=vertici_ins[i][1];//associo a b l'informazione della zona "s"
+				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "s"
+				vertici_ins[i][1]=a;//metto in zona "s" l'ultima informazione di buffer
+				printf("rotate 90\n move to sx\n action 90\n move to sx\n rotate 90\n 2 move to sx\n");//stampa i movimenti per portare l'obiettivo
+				perm();//stampa la permutazione dei vertici
+				printf("2 move to sx\n rotate 270\n 3 move to sx\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				break;//esce dallo switch
+			}
+			default: //se in i c'è qualcosa di diverso da questi caratteri
+				printf("errore\n");
+				break;//esce dallo switch
+		}
+	}
+	return 0;	
+}
+
+//questa funzione serve a commutare e sistemare veramente i lati, stampando le informazioni utili al robot per risolverlo
+int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice per capire quale ciclo sta facendo per risolvere il cubo
+	if(d==0){//se la posizione scombinata è quella della prima informazione della cella
+		switch(i){
+			case 0:{//se i è uguale a 0, si avvia la risoluzione per la posizione a
+				printf("3 move to sx\n action 180\n rotate 180\n move to sx\n action 90\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate to sx\n action 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 180\n action 180\n rotate to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 1:{//se i è uguale a 1 (impossibile ma la mettiamo lo stesso), avvia la risoluzione per la posizione b
+				printf("error\n");//stampa errore
+				break;//esce dallo switch
+			}
+			case 2:{//se i è uguale a 2,si avvia la risoluzione per la posizione c
+				printf("3 move to sx\n action 180\n rotate 180\n move to sx\n action 270\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 180\n action 180\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 3:{//se i è uguale a 3, si avvia la risoluzione per la posizione d
+				t_perm();//svolge la t perm
+				break;//esce dallo switch
+			}
+			case 4:{//se i è uguale a 4, si avvia la risoluzione per la posizione f
+				printf("2 move to sx\n action 180\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n action 180\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 5:{//se i è uguale a 5, si avvia la risoluzione per la posizione g
+				printf("3 move to sx\n action 270\n rotate 90\n move to sx\n action 270\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 90\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 6:{//se i è uguale a 6, si avvia la risoluzione per la posizione h
+				printf("move to sx\n action 90\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 270\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 7:{//se i è uguale a 7, si avvia la risoluzione per la posizione j
+				printf("2 move to sx\naction 270\n rotate 90\n 3 move to sx\n action 270\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 90\n move to sx\n rotate 270\n action 90\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 8:{//se i è uguale a 8, si avvia la risoluzione per la posizione k
+				printf("action 90\n rotate 90\n move to sx\n action 270\n rotate 90\n 3 move to sx\n action 90\n move to sx\n action 90\n rotate 90\n move to sx\n rotate 90\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 270\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n action 270\n move to sx\n rotate 270\n action 90\n 3 move to sx\n rotate 270\n action 270\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 9:{//se i è uguale a 9, si avvia la risoluzione per la posizione n
+				printf("move to sx\n action 270\n 3 move to sx\n\n ");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 90\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 10:{//se i è uguale a 10, si avvia la risoluzione per la posizione o
+				printf("3 move to sx\n action 90\n rotate 90\n 3 move to sx\n action 90\n 3 move to sx\n action 180\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 180\n move to sx\n action 270\n move to sx\n rotate 270\n action 270\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 11:{//se i è uguale a 11, si avvia la risoluzione per la posizione s
+				printf("move to sx\n action 90\n move to sx\n action 90\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n action 270\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			default: //se in i c'è qualcosa di diverso da questi caratteri
+				printf("errore\n");
+				break;//esce dallo switch				
+		}
+	}
+	else if(d==1){//se la posizione scombinata è quella dell'ultima informazione della cella
+		switch(i){
+			case 0:{//se i è uguale a 0, si avvia la risoluzione per la posizione m
+				printf("3 move to sx\n action 90\n rotate 90\n 3 move to sx\n action 270\n 3 move to sx\n action 180\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 180\n move to sx\n action 90\n move to sx\n rotate 270\n action 270\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 1:{//se i è uguale a 1 (impossibile ma la mettiamo lo stesso), avvia la risoluzione per la posizione i
+				printf("error\n");//stampa il cambiamento fatto per conoscere il ciclo della risoluzione del cubo
+				break;//esce dallo switch
+			}
+			case 2:{//se i è uguale a 2, si avvia la risoluzione per la posizione e
+				printf("3 move to sx\n action 270\n rotate 90\n move to sx\n action 90\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 270\n action 90\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 3:{//se i è uguale a 3, si avvia la risoluzione per la posizione q
+				printf("move to sx\n action 270\n move to sx\n action 90\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n action 90\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 4:{//se i è uguale a 4, si avvia la risoluzione per la posizione l
+				printf("2 move to sx\n action 90\n rotate 90\n move to sx\n action 90\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 270\n action 270\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 5:{//se i è uguale a 5, si avvia la risoluzione per la soluzione u
+				printf("action 90\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 180\n 3 move to sx\n action 270\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 6:{//se i è uguale a 6, si avvia la risoluzione per la soluzione r
+				printf("2 move to sx\n action 90\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 270\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 7:{//se i è uguale a 7, si avvia la risoluzione per la soluzione p
+				printf("2 move to sx\n action 180\n move to sx\n action 90\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 270\n 3 move to sx\n action 180\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 8:{//se i è uguale a 8, si avvia la risoluzione per la soluzione v
+				printf("action 180\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 180\n 3 move to sx\n action 180\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 9:{//se i è uguale a 9, si avvia la risoluzione per la soluzione t
+				printf("2 move to sx\n action 270\n rotate 270\n move to sx\n action 90\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("rotate 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 90\n action 90\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 10:{//se i è uguale a 10, si avvia la risoluzione per la soluzione x
+				printf("action 270\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 180\n 3 move to sx\n action 90\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			case 11:{//se i è uguale a 11, si avvia la risoluzione per la soluzione z
+				printf("move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				t_perm();//svolge la t perm
+				printf("move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				break;//esce dallo switch
+			}
+			default: //se in i c'è qualcosa di diverso da questi caratteri
+				printf("errore\n");
+				break;//esce dallo switch				
+		}
+	}
+	else{//se non dovesse funzionare nessuno dei due pezzi 
+		printf("Error\n");
+	}
+	return 0;	
 }
