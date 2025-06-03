@@ -1,3 +1,5 @@
+#include <Servo.h>																		 //libreria per i servomotori
+#include <Stepper.h>																	 //libreria per stepper
 int stato=0;                                           //variabile che mi fa cambiare fase sul loop
 bool first=true;                                       //serve per trasformare le fesi della macchina a stati finiti in dei cicli finiti e non dei loop
 //variabili utili per la parte di programma "orientare_cubo"
@@ -24,9 +26,118 @@ int m=0;																					  	//variabile che conterrà l'informazione del num
 int parita=0;																					//contatore per vedere quante volte permuta i vertici, in modo da capire se eseguire una parità o meno
 //variabili utili per la parte di programma "sequenza_combinazione_pezzi" sono gia stati precedentemente nominati, basterà solamente reinizializzare le variabili a 0 a inizio programma
 
-void setup() {//vanno aggiunte tutte le piedinature di arduino per il robot Rubik
+// Pin collegamenti per sensore di colore
+const int S0 = 1;
+const int S1 = 2;
+const int S2 = 4;
+const int S3 = 12;
+const int OUT = 13;
+
+// Funzione per misurare la frequenza per un dato filtro
+int leggiColore(int s2, int s3) {
+  digitalWrite(S2, s2);
+  digitalWrite(S3, s3);
+  delay(100);  // Attendi che il sensore si stabilizzi
+  return pulseIn(OUT, LOW);
+}
+
+// Funzione per riconoscere il colore in base agli intervalli forniti
+String riconosciColore(int R, int G, int B) {
+  if (R >=4 && R <= 8 && G >= 16 && G <= 27 && B >= 13 && B <= 21) {
+    return 3;//ritorna rosso
+  } else if (R >= 17 && R <= 31 && G >= 15 && G <= 22 && B >= 9 && B <= 16) {
+    return 4;//ritorna blu
+  } else if (R >= 13 && R <= 18 && G >= 8 && G <= 15 && B >= 14 && B <= 20) {
+    return 2;//ritorna verde
+  } else if (R >= 2 && R <= 5 && G >= 9 && G <= 15 && B >= 9 && B <= 15) {
+    return 5;//ritorna arancio
+  } else if (R >= 3 && R <= 7 && G >= 4 && G <= 7 && B >= 8 && B <= 12) {
+    return 6;//ritorna giallo
+  } else if (R >= 2 && R <= 6 && G >= 4 && G <= 7 && B >= 3 && B <= 7) {
+    return 1;//ritorna bianco
+  } else {
+    return "COLORE NON RICONOSCIUTO";
+  }
+}
 
 
+// ------------------- DEFINIZIONE SERVI -------------------
+Servo servo1, servo2, servo3, servo4;
+
+// ------------------- STEP PER SERVO1 E SERVO2 -------------------
+int steps1[] = {76, 79, 120, 111, 64, 64, 76, 60, 128};     // Servo1
+int steps2[] = {125, 123, 122, 95, 96, 88, 125, 100, 108};  // Servo2
+const int numSteps12 = 9;
+
+// ------------------- IMPOSTAZIONI GENERALI -------------------
+const int interpSteps = 30;
+const int interpDelay = 20;
+const int delayStep = 800;
+
+// ------------------- FUNZIONE MOVIMENTO FLUIDO SINCRONO PER DUE SERVO -------------------
+void moveSmoothSync(Servo &servoA, int fromA, int toA, Servo &servoB, int fromB, int toB, int steps = interpSteps, int delayT = interpDelay) {
+  for (int i = 0; i <= steps; i++) {
+    float progress = (float)i / steps;
+    int posA = fromA + progress * (toA - fromA);
+    int posB = fromB + progress * (toB - fromB);
+    servoA.write(posA);
+    servoB.write(posB);
+    delay(delayT);
+  }
+}
+
+// ------------------- FUNZIONE SERVO1 E SERVO2: 7 STEP SINCRONI -------------------
+void Movimentobracciocubo(Servo &servoA, const int* stepsA, Servo &servoB, const int* stepsB, int numSteps, int posizioneRiposoA, int posizioneRiposoB) {
+  for (int i = 1; i < numSteps; i++) {
+    moveSmoothSync(servoA, stepsA[i - 1], stepsA[i], servoB, stepsB[i - 1], stepsB[i]);
+    delay(delayStep);
+  }
+  moveSmoothSync(servoA, stepsA[numSteps - 1], posizioneRiposoA, servoB, stepsB[numSteps - 1], posizioneRiposoB);
+}
+
+// ------------------- FUNZIONI SERVO3 E SERVO4: MOVIMENTI CON TARGET DIFFERENTI -------------------
+void MovimentoBraccioCentri(Servo &servoA, Servo &servoB) {
+  const int targetA = 90;
+  const int targetB = 130;
+  moveSmoothSync(servoA, 117, targetA, servoB, 64, targetB);
+  delay(delayStep);
+  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
+}
+
+void MovimentoBraccioSpigoli(Servo &servoA, Servo &servoB) {
+  const int targetA = 87;
+  const int targetB = 111;
+  moveSmoothSync(servoA, 117, targetA, servoB, 64, targetB);
+  delay(delayStep);
+  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
+}
+
+void MovimentoBraccioVertici(Servo &servoA, Servo &servoB) {
+  const int targetA = 91;
+  const int targetB = 110;
+  moveSmoothSync(servoA, 117, targetA, servoB, 64, targetB);
+  delay(delayStep);
+  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
+}
+
+void setup() {//vanno aggiunte le piedinature del sensore di colore e del passo-passo
+//sensore di colore
+	pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(OUT, INPUT);
+
+  // Imposta frequenza massima di uscita
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, HIGH);
+
+
+//servomotori
+	servo1.attach(3);
+  servo2.attach(5);
+  servo3.attach(6);
+  servo4.attach(11);
 }
 
 void loop() {//funzione contenente le 4 fasi principali della risoluzione del cubo di Rubik
@@ -453,6 +564,16 @@ void attesa(){
 void go(int st){//funzione che serve per la macchina a stati finiti, cambierà dunque fase dopo averne finita una. Equivale alla transizione dei programmi dei PLC
   stato=st;//va alla fase che ho detto io
   first=false;//per riutilizzare la variabile first anche nelle altre fasi
+}
+
+void leggi() {//funzione di lettura dei colori del cubo di Rubik
+  int red = leggiColore(LOW, LOW);     // Filtro Rosso
+  int green = leggiColore(HIGH, HIGH); // Filtro Verde
+  int blue = leggiColore(LOW, HIGH);   // Filtro Blu
+
+  //da cambiare i serialprintln con delle variabili da cambiare con i valori arbitrari
+  int colore = riconosciColore(red, green, blue);
+  delay(1000);
 }
 
 //Questa funzione serve a permutare i vertici di buffer con quello da sistemare
@@ -1052,3 +1173,5 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 	}
 	return 0;	
 }
+
+
