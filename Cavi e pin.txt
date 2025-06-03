@@ -1,0 +1,20 @@
+Braccio grigio:			(cavo arancione)
+servo 1 --> vuoto: pin 6
+servo 2 --> Arduino: pin 11
+
+Braccio nero:		(cavo giallo)
+servo 3 --> vuoto: pin 3
+servo 4 --> Arduino: pin 5
+
+DRIVER Stepper:   (2 cavo rosso, 1 bianco, 1 verde)
+IN1 --> 7
+IN2 --> 8
+IN3 --> 9
+IN4 --> 10
+
+Potenziometro velocità stepper --> A0			(cavo blu)
+
+Potenziometro servo 1 --> A2				(cavo rosso)
+Potenziometro servo 2 --> A3				   ''  ''
+Potenziometro servo 3 --> A4				(cavo blu)
+Potenziometro servo 4 --> A5				   ''  '' 
