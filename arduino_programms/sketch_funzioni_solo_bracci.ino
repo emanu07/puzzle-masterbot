@@ -36,7 +36,8 @@ void moveSmoothSync(Servo &servoA, int fromA, int toA, Servo &servoB, int fromB,
 }
 
 // ------------------- SERVO1 E SERVO2: 7 STEP SINCRONI -------------------
-void Movimentobracciocubo(Servo &servoA, const int* stepsA, Servo &servoB, const int* stepsB, int numSteps, int posizioneRiposoA, int posizioneRiposoB) {
+void Movimentobracciocubo(Servo &servoA, const int* stepsA, Servo &servoB, const int* stepsB, int numSteps, int posizioneRiposoA, int posizioneRiposoB) //cambiare con variabili nuove, stepsA. stepsB, numSteps
+{
   for (int i = 1; i < numSteps; i++) {
     moveSmoothSync(servoA, stepsA[i - 1], stepsA[i], servoB, stepsB[i - 1], stepsB[i]);
     delay(delayStep);
@@ -44,7 +45,7 @@ void Movimentobracciocubo(Servo &servoA, const int* stepsA, Servo &servoB, const
   moveSmoothSync(servoA, stepsA[numSteps - 1], posizioneRiposoA, servoB, stepsB[numSteps - 1], posizioneRiposoB);
 }
 
-// ------------------- SERVO3 E SERVO4: MOVIMENTI CON TARGET DIFFERENTI -------------------
+// ------------------- SERVO3 E SERVO4: MOVIMENTI CON TARGET DIFFERENTI PER SCAN ARM-------------------
 void MovimentoBraccioCentri(Servo &servoA, Servo &servoB) {
   const int targetA = 90;
   const int targetB = 130;
