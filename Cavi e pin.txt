@@ -1,10 +1,12 @@
+*servo*
+
 Braccio grigio:			(cavo arancione)
-servo 1 --> vuoto: pin 6
-servo 2 --> Arduino: pin 11
+servo 3 --> vuoto: pin 6
+servo 4 --> Arduino: pin 11
 
 Braccio nero:		(cavo giallo)
-servo 3 --> vuoto: pin 3
-servo 4 --> Arduino: pin 5
+servo 1 --> vuoto: pin 3
+servo 2 --> Arduino: pin 5
 
 DRIVER Stepper:   (2 cavo rosso, 1 bianco, 1 verde)
 IN1 --> 7
@@ -12,9 +14,89 @@ IN2 --> 8
 IN3 --> 9
 IN4 --> 10
 
+*stepper*
+
 Potenziometro velocità stepper --> A0			(cavo blu)
 
-Potenziometro servo 1 --> A2				(cavo rosso)
-Potenziometro servo 2 --> A3				   ''  ''
-Potenziometro servo 3 --> A4				(cavo blu)
-Potenziometro servo 4 --> A5				   ''  '' 
+Potenziometro servo 3 --> A2				(cavo rosso)
+Potenziometro servo 4 --> A3				   ''  ''
+Potenziometro servo 1 --> A4				(cavo blu)
+Potenziometro servo 2 --> A5				   ''  '' 
+
+
+*sensore di colori*
+
+Vcc --> 5V		Giallo
+GND --> GND		Arancione
+S0 --> 1		Bianco
+S1 --> 2		Verde
+S2 --> 4		Viola
+S3 --> 12		Grigio
+OUT --> 13		Blu
+OE --> disconnected
+
+
+ROSSO	 -->	R:4,8	G:21,27	B:16,21	*
+BLU	 --> 	R:21,31	G:19,22	B:10,16	*
+VERDE	 --> 	R:16,18	G:8,15	B:17,20	*
+ARANCIO	 -->	R:2,5	G:9,12	B:9,13	*
+GIALLO	 -->	R:3,6	G:4,7	B:8,12	*
+BIANCO	 -->	R:3,6	G:4,7	B:3,6	*
+
+
+Valori servo1 e 2 per scansione:
+
+*visualizzazione colore centro*		
+servo3		129
+servo4		130
+
+*visualizzazione colore spigolo vicino*
+servo3		87
+servo4		111
+
+*visualizzazione colore vertice vicino*
+servo3		91
+servo4		110
+
+*posizione di riposo*
+servo3		117
+servo4		64
+
+
+Valori servo3 e 4 per movimentazione cubo:
+
+*posizione di riposo*
+servo1		169
+servo2		8
+
+*step1 da riposo a cubo*
+servo1		123
+servo2		79
+
+*step2 da riposo a cubo*
+servo1		122
+servo2		120
+
+*posizione sul cubo*
+servo1		95
+servo2		111
+
+*step3*
+servo1		96
+servo2		64
+
+*step4*
+servo1		88
+servo2		64
+
+*step5*
+servo1		140
+servo2		64
+
+*step6*
+servo1		113
+servo2		46
+
+*step7*
+servo1		108
+servo2		128
