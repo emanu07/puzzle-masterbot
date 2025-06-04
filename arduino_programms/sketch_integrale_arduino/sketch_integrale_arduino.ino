@@ -27,11 +27,17 @@ int parita=0;																					//contatore per vedere quante volte permuta i 
 //variabili utili per la parte di programma "sequenza_combinazione_pezzi" sono gia stati precedentemente nominati, basterà solamente reinizializzare le variabili a 0 a inizio programma
 
 // Pin collegamenti per sensore di colore
+int red=0;
+int green=0;
+int blue=0;
 const int S0 = 1;
 const int S1 = 2;
 const int S2 = 4;
 const int S3 = 12;
 const int OUT = 13;
+
+//piedinature Stepper
+Stepper motore(200, 7, 9, 8, 10);
 
 // Funzione per misurare la frequenza per un dato filtro
 int leggiColore(int s2, int s3) {
@@ -42,22 +48,20 @@ int leggiColore(int s2, int s3) {
 }
 
 // Funzione per riconoscere il colore in base agli intervalli forniti
-String riconosciColore(int R, int G, int B) {
+int riconosciColore(int R, int G, int B) {
   if (R >=4 && R <= 8 && G >= 16 && G <= 27 && B >= 13 && B <= 21) {
-    return 3;//ritorna rosso
+    return 3;
   } else if (R >= 17 && R <= 31 && G >= 15 && G <= 22 && B >= 9 && B <= 16) {
-    return 4;//ritorna blu
+    return 4;
   } else if (R >= 13 && R <= 18 && G >= 8 && G <= 15 && B >= 14 && B <= 20) {
-    return 2;//ritorna verde
+    return 2;
   } else if (R >= 2 && R <= 5 && G >= 9 && G <= 15 && B >= 9 && B <= 15) {
-    return 5;//ritorna arancio
+    return 5;
   } else if (R >= 3 && R <= 7 && G >= 4 && G <= 7 && B >= 8 && B <= 12) {
-    return 6;//ritorna giallo
+    return 1;
   } else if (R >= 2 && R <= 6 && G >= 4 && G <= 7 && B >= 3 && B <= 7) {
-    return 1;//ritorna bianco
-  } else {
-    return "COLORE NON RICONOSCIUTO";
-  }
+    return 6;
+  } 
 }
 
 
@@ -68,6 +72,11 @@ Servo servo1, servo2, servo3, servo4;
 int steps1[] = {76, 79, 120, 111, 64, 64, 76, 60, 128};     // Servo1
 int steps2[] = {125, 123, 122, 95, 96, 88, 125, 100, 108};  // Servo2
 const int numSteps12 = 9;
+
+// ---------- STEP PER BRACCIO PER ROTAZIONE CUBO --------
+int stepsorienta1[] = {76, 79, 120, 111};     // Servo1
+int stepsorienta2[] = {125, 123, 122, 95};  // Servo2
+const int numStepsorienta12 = 4;
 
 // ------------------- IMPOSTAZIONI GENERALI -------------------
 const int interpSteps = 30;
@@ -87,7 +96,7 @@ void moveSmoothSync(Servo &servoA, int fromA, int toA, Servo &servoB, int fromB,
 }
 
 // ------------------- FUNZIONE SERVO1 E SERVO2: 7 STEP SINCRONI -------------------
-void Movimentobracciocubo(Servo &servoA, const int* stepsA, Servo &servoB, const int* stepsB, int numSteps, int posizioneRiposoA, int posizioneRiposoB) {
+void Movesx(Servo &servoA, const int* stepsA, Servo &servoB, const int* stepsB, int numSteps, int posizioneRiposoA, int posizioneRiposoB) {
   for (int i = 1; i < numSteps; i++) {
     moveSmoothSync(servoA, stepsA[i - 1], stepsA[i], servoB, stepsB[i - 1], stepsB[i]);
     delay(delayStep);
@@ -95,8 +104,10 @@ void Movimentobracciocubo(Servo &servoA, const int* stepsA, Servo &servoB, const
   moveSmoothSync(servoA, stepsA[numSteps - 1], posizioneRiposoA, servoB, stepsB[numSteps - 1], posizioneRiposoB);
 }
 
+
+
 // ------------------- FUNZIONI SERVO3 E SERVO4: MOVIMENTI CON TARGET DIFFERENTI -------------------
-void MovimentoBraccioCentri(Servo &servoA, Servo &servoB) {
+void scanCentri(Servo &servoA, Servo &servoB) {
   const int targetA = 90;
   const int targetB = 130;
   moveSmoothSync(servoA, 117, targetA, servoB, 64, targetB);
@@ -104,23 +115,266 @@ void MovimentoBraccioCentri(Servo &servoA, Servo &servoB) {
   moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
 }
 
-void MovimentoBraccioSpigoli(Servo &servoA, Servo &servoB) {
+void scanCentriritorno(Servo &servoA, Servo &servoB) {
+  const int targetA = 90;
+  const int targetB = 130;
+  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
+	delay(delayStep);
+}
+
+void scanSpigoli(Servo &servoA, Servo &servoB) {
   const int targetA = 87;
   const int targetB = 111;
   moveSmoothSync(servoA, 117, targetA, servoB, 64, targetB);
   delay(delayStep);
-  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
 }
 
-void MovimentoBraccioVertici(Servo &servoA, Servo &servoB) {
+void scanSpigoliritorno(Servo &servoA, Servo &servoB) {
+  const int targetA = 87;
+  const int targetB = 111;
+  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
+	delay(delayStep);
+}
+
+void scanVertici(Servo &servoA, Servo &servoB) {
   const int targetA = 91;
   const int targetB = 110;
   moveSmoothSync(servoA, 117, targetA, servoB, 64, targetB);
   delay(delayStep);
-  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
 }
 
-void setup() {//vanno aggiunte le piedinature del sensore di colore e del passo-passo
+void scanVerticiritorno(Servo &servoA, Servo &servoB) {
+  const int targetA = 91;
+  const int targetB = 110;
+  moveSmoothSync(servoA, targetA, 117, servoB, targetB, 64);
+	delay(delayStep);
+}
+
+//---------- MOVIMENTO STEPPER --------
+void rotate45() {
+    motore.step(257);
+    delay(500);
+}
+void rotate90() {
+    motore.step(515);
+    delay(500);
+}
+void rotate180() {
+    motore.step(1030);
+    delay(500);
+}
+void rotate270() {
+    motore.step(1545);
+    delay(500);
+}
+void rotate315() {
+    motore.step(1802);
+    delay(500);
+}
+
+//--------ACTION-----
+void action90(Servo &servo1, const int* stepsorienta1, Servo &servo2, const int* stepsorienta2, int numStepsorienta, int posizioneRiposo1, int posizioneRiposo2) {
+  // Movimento avanti
+  for (int i = 1; i < numStepsorienta; i++) {
+    moveSmoothSync(servo1, stepsorienta1[i - 1], stepsorienta1[i], servo2, stepsorienta2[i - 1], stepsorienta2[i]);
+    delay(delayStep);
+  }
+
+  // Rotazione 90 gradi
+  motore.step(515);
+  delay(500);
+
+  // Movimento indietro (ritorno)
+  for (int i = numStepsorienta - 1; i > 0; i--) {
+    moveSmoothSync(servo1, stepsorienta1[i], stepsorienta1[i - 1], servo2, stepsorienta2[i], stepsorienta2[i - 1]);
+    delay(delayStep);
+  }
+}
+
+void action180(Servo &servo1, const int* stepsorienta1, Servo &servo2, const int* stepsorienta2, int numStepsorienta, int posizioneRiposo1, int posizioneRiposo2) {
+  for (int i = 1; i < numStepsorienta; i++) {
+    moveSmoothSync(servo1, stepsorienta1[i - 1], stepsorienta1[i], servo2, stepsorienta2[i - 1], stepsorienta2[i]);
+    delay(delayStep);
+  }
+
+  motore.step(1030);  // Rotazione 180 gradi
+  delay(500);
+
+  for (int i = numStepsorienta - 1; i > 0; i--) {
+    moveSmoothSync(servo1, stepsorienta1[i], stepsorienta1[i - 1], servo2, stepsorienta2[i], stepsorienta2[i - 1]);
+    delay(delayStep);
+  }
+}
+
+void action270(Servo &servo1, const int* stepsorienta1, Servo &servo2, const int* stepsorienta2, int numStepsorienta, int posizioneRiposo1, int posizioneRiposo2) {
+  for (int i = 1; i < numStepsorienta; i++) {
+    moveSmoothSync(servo1, stepsorienta1[i - 1], stepsorienta1[i], servo2, stepsorienta2[i - 1], stepsorienta2[i]);
+    delay(delayStep);
+  }
+
+  motore.step(1545);  // Rotazione 270 gradi
+  delay(500);
+
+  for (int i = numStepsorienta - 1; i > 0; i--) {
+    moveSmoothSync(servo1, stepsorienta1[i], stepsorienta1[i - 1], servo2, stepsorienta2[i], stepsorienta2[i - 1]);
+    delay(delayStep);
+  }
+}
+
+void sequence1() {
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+	action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+	action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1,stepsorienta1, servo2, stepsorienta2,numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+}
+
+void sequence2() {
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+}
+
+void sequence3() {
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1,stepsorienta1, servo2, stepsorienta2,numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1,stepsorienta1, servo2, stepsorienta2,numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence4() {
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1,stepsorienta1, servo2, stepsorienta2,numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8); Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence5() {
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence6() {
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence7() {
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence8() {
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence9() {
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence10() {
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+}
+
+
+void sequence11() {
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence12() {
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+}
+
+void sequence13() {
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+  rotate90();
+  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+  rotate270();
+}
+
+
+	
+
+void setup() {
 //sensore di colore
 	pinMode(S0, OUTPUT);
   pinMode(S1, OUTPUT);
@@ -128,7 +382,7 @@ void setup() {//vanno aggiunte le piedinature del sensore di colore e del passo-
   pinMode(S3, OUTPUT);
   pinMode(OUT, INPUT);
 
-  // Imposta frequenza massima di uscita
+// Imposta frequenza massima di uscita
   digitalWrite(S0, HIGH);
   digitalWrite(S1, HIGH);
 
@@ -138,6 +392,15 @@ void setup() {//vanno aggiunte le piedinature del sensore di colore e del passo-
   servo2.attach(5);
   servo3.attach(6);
   servo4.attach(11);
+
+//stepper
+	motore.setSpeed(150);
+
+	int posizioneRiposo1=169;
+	int posizioneRiposo2=8;
+
+	int posizioneRiposoA=169;
+	int posizioneRiposoB=8;
 }
 
 void loop() {//funzione contenente le 4 fasi principali della risoluzione del cubo di Rubik
@@ -160,32 +423,58 @@ void loop() {//funzione contenente le 4 fasi principali della risoluzione del cu
 
 void orienta(){
   if (first==true){
-    scanf("%d",& c1);						//guardo che colore è il centro in cima
-	  printf("\n");
+		scanCentri(servo3, servo4);
+		red = leggiColore(LOW, LOW);     // Filtro Rosso
+ 	  green = leggiColore(HIGH, HIGH); // Filtro Verde
+    blue = leggiColore(LOW, HIGH);   // Filtro Blu
+
+  //da cambiare i serialprintln con delle variabili da cambiare con i valori arbitrari
+    c1 = riconosciColore(red, green, blue);
+    delay(1000);
+		scanCentriritorno(servo3, servo4);
   	while(c1 != 1){							//se il colore non è bianco
-	  	printf("move to sx\n");				//sposta cubo verso sinistra
-		  scanf("%d",& c1);					//guardo che colore è il nuovo centro in cima
-	  	printf("\n");						
+			Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+		  scanCentri(servo3, servo4);
+			red = leggiColore(LOW, LOW);     // Filtro Rosso
+ 	    green = leggiColore(HIGH, HIGH); // Filtro Verde
+      blue = leggiColore(LOW, HIGH);   // Filtro Blu
+
+  //da cambiare i serialprintln con delle variabili da cambiare con i valori arbitrari
+      c1 = riconosciColore(red, green, blue);
+      delay(1000);
+			scanCentriritorno(servo3, servo4);					
 		  n++;								//aggiorno di uno il contatore
   		if(n==3){							//se il contatore è a 3
-	  		printf("rotate 90\n");			//ruota il cubo di 90 orari
+	  		rotate90();			//ruota il cubo di 90 orari
 		  	n=0;							//aggiorna il contatore a 0
   		}
   	}
-	  printf("centro bianco trovato\n");		//per capire se funge
-	  printf("move to sx\n");					//sposta cubo verso sinistra
-  	scanf("%d",& c2);						//guardo che colore è il centro che andrà di fronte a me
-	  printf("\n");
-  	printf("rotate 90\n");					//ruota il cubo di 90 orari
+	  Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);					//sposta cubo verso sinistra
+  	scanCentri(servo3, servo4);
+		red = leggiColore(LOW, LOW);     // Filtro Rosso
+ 	  green = leggiColore(HIGH, HIGH); // Filtro Verde
+    blue = leggiColore(LOW, HIGH);   // Filtro Blu
+
+  //da cambiare i serialprintln con delle variabili da cambiare con i valori arbitrari
+    c2 = riconosciColore(red, green, blue);
+    delay(1000);
+		scanCentriritorno(servo3, servo4);
+  	rotate90();					//ruota il cubo di 90 orari
 	  while(c2!=2){
-	   	printf("move to sx\n");				//sposta cubo verso sinistra
-		  scanf("%d",& c2);					//guardo che colore è il nuovo centro che andrà di fronte a me
-		  printf("\n");
+	   	Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+		  scanCentri(servo3, servo4);
+			red = leggiColore(LOW, LOW);     // Filtro Rosso
+ 	    green = leggiColore(HIGH, HIGH); // Filtro Verde
+      blue = leggiColore(LOW, HIGH);   // Filtro Blu
+
+  //da cambiare i serialprintln con delle variabili da cambiare con i valori arbitrari
+      c2 = riconosciColore(red, green, blue);
+      delay(1000);
+			scanCentriritorno(servo3, servo4);
 	  }
-  	printf("centro verde trovato\n");		//per capire se funge
-	  printf("rotate 90\n");					//ruota il cubo di 90 orari
-  	printf("move to sx\n");					//sposta cubo verso sinistra
-	  printf("rotate 270\n");				//ruota il cubo di 270 orari
+	  rotate90();					//ruota il cubo di 90 orari
+  	Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);					//sposta cubo verso sinistra
+	  rotate270();				//ruota il cubo di 270 orari
     first=false;
   }
   go(1);//va alla fase 1
@@ -193,49 +482,62 @@ void orienta(){
 
 void scansiona(){
   if (first=true){
-		printf("Move scan arm to dx\n");		//muove il braccio che scansiona i pezzi verso destra -->ora va verso i lati, quindi richiamare la funzione corretta che porti lo scan_arm fino ai lati
 		for(nf=0; nf<6; nf++){					//crea funzione per ogni faccia del cubo
 			for(ns=0; ns<4; ns++, t++){			//crea funzione per ogni scansione della faccia
-				scanf("%d",& lati[0][t]);			//salva il pezzo nell'array dei lati
-				printf("\n");
-				printf("rotate 90\n");			//ruota il cubo di 90 orari
+				scanSpigoli(servo3, servo4);
+				red = leggiColore(LOW, LOW);     // Filtro Rosso
+ 	      green = leggiColore(HIGH, HIGH); // Filtro Verde
+   		  blue = leggiColore(LOW, HIGH);   // Filtro Blu
+
+  //da cambiare i serialprintln con delle variabili da cambiare con i valori arbitrari
+   		  lati[0][t]= riconosciColore(red, green, blue);
+    		delay(1000);
+				scanSpigoliritorno(servo3, servo4);
+				rotate90();			//ruota il cubo di 90 orari
 			}
 			if(nf==3){							//se il programma sta facendo la quarta faccia
-				printf("rotate 90\n");			//ruota il cubo di 90 orari
-				printf("move to sx\n");			//sposta cubo verso sinistra
+				rotate90();			//ruota il cubo di 90 orari
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra
 			}
 			else if(nf==4){						//se il programma sta facendo la quinta faccia
-				printf("move to sx\n");			//sposta cubo verso sinistra
-				printf("move to sx\n");			//sposta cubo verso sinistra			
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra			
 			}
 			else{								//se non è ne la quarta che la quinta faccia
-				printf("move to sx\n");			//sposta cubo verso sinistra
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra
 			}	
 		}
-		printf("rotate 270\n");					//ruota il cubo di 270 orari
-		printf("move to sx\n");					//sposta cubo verso sinistra
+		rotate270();					//ruota il cubo di 270 orari
+		Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);					//sposta cubo verso sinistra
 		t=0;									//faccio si che la variabile t ritorni a 0 perche dovrò riusarla per l'altro array
-		printf("Move scan arm dx\n rotate 45\n");//muove il braccio che scansiona i vertici e ruota di 45 gradi il cassetto in modo da legere bene i vertici -->non so se debba andare così. Richiamare la funzione corretta che porti lo scan_arm fino ai vertici
+
+		rotate45();//muove il braccio che scansiona i vertici e ruota di 45 gradi il cassetto in modo da legere bene i vertici -->non so se debba andare così. Richiamare la funzione corretta che porti lo scan_arm fino ai vertici
 		for(nf=0; nf<6; nf++){					//crea funzione per ogni faccia del cubo
 			for(ns=0; ns<4; ns++, t++){			//crea funzione per ogni scansione della faccia
-				scanf("%d",& vertici[0][t]);		//salva il pezzo nell'array dei vertici
-				printf("\n");
-				printf("rotate 90\n");			//ruota il cubo di 90 orari
+				scanVertici(servo3, servo4);
+				red = leggiColore(LOW, LOW);     // Filtro Rosso
+ 	      green = leggiColore(HIGH, HIGH); // Filtro Verde
+   		  blue = leggiColore(LOW, HIGH);   // Filtro Blu
+   		  vertici[0][t]= riconosciColore(red, green, blue);
+    		delay(1000);
+				scanVerticiritorno(servo3, servo4);
+				rotate90();			//ruota il cubo di 90 orari
 			}
 			if(nf==3){							//se il programma sta facendo la quarta faccia
-				printf("rotate 90\n");			//ruota il cubo di 90 orari
-				printf("move to sx\n");			//sposta cubo verso sinistra
+				rotate90();			//ruota il cubo di 90 orari
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra
 			}
 			else if(nf==4){						//se il programma sta facendo la quinta faccia
-				printf("move to sx\n");			//sposta cubo verso sinistra
-				printf("move to sx\n");			//sposta cubo verso sinistra			
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra			
 			}
 			else{								//se non è ne la quarta che la quinta faccia
-				printf("move to sx\n");			//sposta cubo verso sinistra
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);			//sposta cubo verso sinistra
 			}	
 		}
-		printf("rotate 270\n");					//ruota il cubo di 270 orari
-		printf("move to sx\n");					//sposta cubo verso sinistra
+		rotate270();					//ruota il cubo di 270 orari
+		Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);					//sposta cubo verso sinistra
+		rotate45();
 		first=false;
 	}
 	go(2);//va alla fase 2
@@ -415,10 +717,10 @@ void ordina(){
 			//non fa nulla
 		}
 		else if(parita%2==1){//se sono state eseguite un numero dispari di commutazioni --> svolge l'algoritmo di parità
-			printf("3 move to sx\n action 270\n 3 move to sx\n action 270\n move to sx\n action 90\n rotate 90\n move to sx\n action 90\n");//stampa la funzione
-			printf("3 move to sx\n action 270\n rotate 90\n move to sx\n action 180\n 3 move to sx\n action 90\n move to sx\n action 180\n");//stampa la funzione
-			printf("3 move to sx\n action 90\n rotate 90\n 3 move to sx\n action 270\n move to sx\n action 270\n rotate 90\n 3 move to sx\n");//stampa la funzione
-			printf("action 270\n move to sx\n action 270\n 3 move to sx\n action 180\n move to sx\n action 90\n 3 move to sx\n action 90\n 2 move to sx\n");//stampa la funzione
+			sequence1();
+			sequence2();
+			sequence3();
+			sequence4();
 		}
 	
 	
@@ -566,31 +868,22 @@ void go(int st){//funzione che serve per la macchina a stati finiti, cambierà d
   first=false;//per riutilizzare la variabile first anche nelle altre fasi
 }
 
-void leggi() {//funzione di lettura dei colori del cubo di Rubik
-  int red = leggiColore(LOW, LOW);     // Filtro Rosso
-  int green = leggiColore(HIGH, HIGH); // Filtro Verde
-  int blue = leggiColore(LOW, HIGH);   // Filtro Blu
-
-  //da cambiare i serialprintln con delle variabili da cambiare con i valori arbitrari
-  int colore = riconosciColore(red, green, blue);
-  delay(1000);
-}
 
 //Questa funzione serve a permutare i vertici di buffer con quello da sistemare
 void perm(){//perm che scambia ilvertice di buffer con quello preso in considerazione 
-	printf("3 move to sx\n action 270\n 3 move to sx\n action 90\n move to sx\n action 90\n 3 move to sx\n action 90\n move to sx\n");//stampa la funzione
-	printf("action 270\n 3 move to sx\n action 270\n move to sx\n action 90\n rotate 90\n move to sx\n action 90\n 3 move to sx\n");//stampa la funzione 
-	printf("action 270\n rotate 90\n move to sx\n action 270\n 3 move to sx\n action 90\n move to sx\n action 90\n 3 move to sx\n");//stampa la funzione
-	printf("action 90\n rotate 90\n 3 move to sx\n action 270\n move to sx\n action 270\n rotate 90\n move to sx\n ");//stampa la funzione
+	sequence5();
+	sequence6();
+	sequence7();
+	sequence8();
 }
 
 //Questa funzione serve a permutare il lato di buffer con quello da sistemare
 void t_perm(){//funzione che stampa le mosse che svolgono la T perm
-	printf("3 move to sx\n action 270\n 3 move to sx\n action 270\n move to sx\n action 90\n 3 move to sx\n");//stampa la funzione
-	printf("action 90\n move to sx\n action 90\n rotate 90\n move to sx\n action 270\n rotate 90\n");//stampa la funzione
-	printf("move to sx\n rotate 90\n move to sx\n action 180\n 3 move to sx\n action 90\n move to sx\n");//stampa la funzione
-	printf("action 90\n 3 move to sx\n action 90\n move to sx\n action 270\n 3 move to sx\n action 270\n");//stampa la funzione
-	printf("move to sx\n action 90\n rotate 90\n move to sx\n action 90\n rotate 90\n 3 move to sx\n rotate 270\n\n");//stampa la funzione
+	sequence9();
+	sequence10();
+	sequence11();
+	sequence12();
+	sequence13();
 }
 
 //Questa funzione serve a permutare veramente le informazioni dei vertici e stampa le informazioni che servono a spostare i singoli vertici
@@ -616,9 +909,15 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "m"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "m"
 				vertici_ins[i][1]=a;//metto in zona "m" l'ultima informazione di buffer
-				printf("3 move to sx\n action 270\n move to sx\n action 90\n");//stampa i movimenti per portare l'obiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				perm();//stampa la permutazione dei vertici
-				printf("action 270\n 3 move to sx\n action 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 2:{//se i è uguale a 2, avvia la risoluzione per la posizione "c"
@@ -634,9 +933,16 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "i"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "i"
 				vertici_ins[i][1]=a;//metto in zona "i" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				perm();//stampa la permutazione dei vertici
-				printf("rotate 90\n move to sx\n action 90\n 3 move to sx\n rotate 270\n ");//stampa i movimenti per portare l'obiettivo a posto
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate270();
 				break;//esce dallo switch
 			}
 			case 3:{//se i è uguale a 3, avvia la risoluzione per la posizione "d"
@@ -652,9 +958,23 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "e"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "e"
 				vertici_ins[i][1]=a;//metto in zona "e" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 270\n rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n action 90\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				break;//esce dallo switch
 			}
 			case 4:{//se i è uguale a 4, avvia la risoluzione per la posizione "o"
@@ -670,9 +990,15 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "t"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "t"
 				vertici_ins[i][1]=a;//metto in zona "t" l'ultima informazione di buffer
-				printf("action 90\n 3 move to sx\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("3 move to sx\n action 90\n move to sx\n action 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 5:{//se i è uguale a 5, avvia la risoluzione per la posizione "k"
@@ -688,9 +1014,13 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "p"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "p"
 				vertici_ins[i][1]=a;//metto in zona "p" l'ultima informazione di buffer
-				printf("3 move to sx\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);ù
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("3 move to sx\n action 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 6:{//se i è uguale a 6, avvia la risoluzione per la posizione "g"
@@ -706,9 +1036,19 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "l"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "l"
 				vertici_ins[i][1]=a;//metto in zona "l" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 270\n 3 move to sx\n action 270\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate270();
 				perm();//stampa la permutazione dei vertici
-				printf("rotate 90\n action 90\n move to sx\n action 90\n 3 move to sx\n rotate 270\n ");//stampa i movimenti per portare l'obiettivo a posto
+				rotate90();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				break;//esce dallo switch
 			}
 			case 7:{//se i è uguale a 7, avvia la risoluzione per la posizione "h"
@@ -724,9 +1064,9 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][2];//associo a b l'informazione della zona "u"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "u"
 				vertici_ins[i][2]=a;//metto in zona "u" l'ultima informazione di buffer
-				printf("action 270\n");//stampa i movimenti per portare l'obiettivo
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				perm();//stampa la permutazione dei vertici
-				printf("action 90\n");//stampa i movimenti per portare l'obiettivo a posto
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			default: //se in i c'è qualcosa di diverso da questi caratteri
@@ -755,9 +1095,23 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][2];//associo a b l'informazione della zona "j"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "j"
 				vertici_ins[i][2]=a;//metto in zona "j" l'ultima informazione di buffer
-				printf("3 move to sx\n action 90\n rotate 90\n move to sx\n action 270\n rotate 90\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				perm();//stampa la permutazione dei vertici
-				printf("rotate 90\n move to sx\n rotate 270\n action 90\n 3 move to sx\n rotate 270\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 2:{//se i è uguale a 2, avvia la risoluzione per la posizione "i"
@@ -773,9 +1127,13 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][2];//associo a b l'informazione della zona "f"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "f"
 				vertici_ins[i][2]=a;//metto in zona "f" l'ultima informazione di buffer
-				printf("3 move to sx\n action 90\n move to sx\n ");//stampa i movimenti per portare l'obiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("3 move to sx\n action 270\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 3:{//se i è uguale a 3, avvia la risoluzione per la posizione "e"
@@ -791,9 +1149,19 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][2];//associo a b l'informazione della zona "r"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "r"
 				vertici_ins[i][2]=a;//metto in zona "r" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 90\n 3 move to sx\n action 270\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate270();
 				perm();//stampa la permutazione dei vertici
-				printf("rotate 90\n action 90\n move to sx\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				rotate90();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				break;//esce dallo switch
 			}
 			case 4:{//se i è uguale a 4, avvia la risoluzione per la posizione "t"
@@ -809,9 +1177,9 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][2];//associo a b l'informazione della zona "z"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "z"
 				vertici_ins[i][2]=a;//metto in zona "z" l'ultima informazione di buffer
-				printf("action 180\n");//stampa i movimenti per portare l'obiettivo
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				perm();//stampa la permutazione dei vertici
-				printf("action 180\n");//stampa i movimenti per portare l'obiettivo a posto
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 5:{//se i è uguale a 5, avvia la risoluzione per la posizione "p"
@@ -827,9 +1195,9 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][2];//associo a b l'informazione della zona "x"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "x"
 				vertici_ins[i][2]=a;//metto in zona "x" l'ultima informazione di buffer
-				printf("action 90\n");//stampa i movimenti per portare l'obiettivo
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				perm();//stampa la permutazione dei vertici
-				printf("action 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 6:{//se i è uguale a 6, avvia la risoluzione per la posizione "l"
@@ -863,9 +1231,23 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][0];//associo a b l'informazione della zona "h"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "h"
 				vertici_ins[i][0]=a;//metto in zona "h" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 180\n rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n action 180\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				break;//esce dallo switch
 			}
 			default: //se in i c'è qualcosa di diverso da questi caratteri
@@ -893,9 +1275,13 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][0];//associo a b l'informazione della zona "b"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "b"
 				vertici_ins[i][0]=a;//metto in zona "b" l'ultima informazione di buffer
-				printf("3 move to sx\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("3 move to sx\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 2:{//se i è uguale a 2, avvia la risoluzione per la posizione "f"
@@ -911,9 +1297,15 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][0];//associo a b l'informazione della zona "c"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "c"
 				vertici_ins[i][0]=a;//metto in zona "c" l'ultima informazione di buffer
-				printf("3 move to sx\n action 180\n move to sx\n action 90\n");//stampa i movimenti per portare l'obiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				perm();//stampa la permutazione dei vertici
-				printf("action 270\n 3 move to sx\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 3:{//se i è uguale a 3, avvia la risoluzione per la posizione "r"
@@ -929,9 +1321,17 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][0];//associo a b l'informazione della zona "d"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "d"
 				vertici_ins[i][0]=a;//metto in zona "d" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 180\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				perm();//stampa la permutazione dei vertici
-				printf("rotate 90\n move to sx\n action 180\n 3 move to sx\nrotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				break;//esce dallo switch
 			}
 			case 4:{//se i è uguale a 4, avvia la risoluzione per la posizione "z"
@@ -947,9 +1347,19 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][0];//associo a b l'informazione della zona "o"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "o"
 				vertici_ins[i][0]=a;//metto in zona "o" l'ultima informazione di buffer
-				printf("action 270\n rotate 90\n move to sx\n action 90\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				perm();//stampa la permutazione dei vertici
-				printf("rotate 90\n move to sx\n action 270\n 3 move to sx\n rotate 270\n action 90\n");//stampa i movimenti per portare l'obiettivo a posto
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 5:{//se i è uguale a 5, avvia la risoluzione per la posizione "x"
@@ -965,9 +1375,23 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][0];//associo a b l'informazione della zona "k"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "k"
 				vertici_ins[i][0]=a;//metto in zona "k" l'ultima informazione di buffer
-				printf("3 move to sx\n action 180\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 90\n 3 move to sx\n");//stampa i movimenti per portare l'obiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("move to sx\n rotate 270\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 180\n move to sx\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 6:{//se i è uguale a 6, avvia la risoluzione per la posizione "v"
@@ -983,9 +1407,23 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][0];//associo a b l'informazione della zona "g"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "g"
 				vertici_ins[i][0]=a;//metto in zona "g" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n action 90\n rotate 90\n move to sx\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				break;//esce dallo switch
 			}
 			case 7:{//se i è uguale a 7, avvia la risoluzione per la posizione "u"
@@ -1001,9 +1439,19 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "s"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "s"
 				vertici_ins[i][1]=a;//metto in zona "s" l'ultima informazione di buffer
-				printf("rotate 90\n move to sx\n action 90\n move to sx\n rotate 90\n 2 move to sx\n");//stampa i movimenti per portare l'obiettivo
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
-				printf("2 move to sx\n rotate 270\n 3 move to sx\n action 270\n 3 move to sx\n rotate 270\n");//stampa i movimenti per portare l'obiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
 				break;//esce dallo switch
 			}
 			default: //se in i c'è qualcosa di diverso da questi caratteri
@@ -1019,9 +1467,23 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 	if(d==0){//se la posizione scombinata è quella della prima informazione della cella
 		switch(i){
 			case 0:{//se i è uguale a 0, si avvia la risoluzione per la posizione a
-				printf("3 move to sx\n action 180\n rotate 180\n move to sx\n action 90\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("rotate to sx\n action 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 180\n action 180\n rotate to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+        action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+        action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+        rotate180();
+        action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 1:{//se i è uguale a 1 (impossibile ma la mettiamo lo stesso), avvia la risoluzione per la posizione b
@@ -1029,9 +1491,23 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 				break;//esce dallo switch
 			}
 			case 2:{//se i è uguale a 2,si avvia la risoluzione per la posizione c
-				printf("3 move to sx\n action 180\n rotate 180\n move to sx\n action 270\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+        rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 180\n action 180\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+        action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 3:{//se i è uguale a 3, si avvia la risoluzione per la posizione d
@@ -1039,51 +1515,147 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 				break;//esce dallo switch
 			}
 			case 4:{//se i è uguale a 4, si avvia la risoluzione per la posizione f
-				printf("2 move to sx\n action 180\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n action 180\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 5:{//se i è uguale a 5, si avvia la risoluzione per la posizione g
-				printf("3 move to sx\n action 270\n rotate 90\n move to sx\n action 270\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 90\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 6:{//se i è uguale a 6, si avvia la risoluzione per la posizione h
-				printf("move to sx\n action 90\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 270\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 7:{//se i è uguale a 7, si avvia la risoluzione per la posizione j
-				printf("2 move to sx\naction 270\n rotate 90\n 3 move to sx\n action 270\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 90\n move to sx\n rotate 270\n action 90\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);			
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 8:{//se i è uguale a 8, si avvia la risoluzione per la posizione k
-				printf("action 90\n rotate 90\n move to sx\n action 270\n rotate 90\n 3 move to sx\n action 90\n move to sx\n action 90\n rotate 90\n move to sx\n rotate 90\n\n");//stampa i movimenti per portare l'obbiettivo
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate90();
 				t_perm();//svolge la t perm
-				printf("rotate 270\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n action 270\n move to sx\n rotate 270\n action 90\n 3 move to sx\n rotate 270\n action 270\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate270();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 9:{//se i è uguale a 9, si avvia la risoluzione per la posizione n
-				printf("move to sx\n action 270\n 3 move to sx\n\n ");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 90\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 10:{//se i è uguale a 10, si avvia la risoluzione per la posizione o
-				printf("3 move to sx\n action 90\n rotate 90\n 3 move to sx\n action 90\n 3 move to sx\n action 180\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 180\n move to sx\n action 270\n move to sx\n rotate 270\n action 270\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 11:{//se i è uguale a 11, si avvia la risoluzione per la posizione s
-				printf("move to sx\n action 90\n move to sx\n action 90\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n action 270\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			default: //se in i c'è qualcosa di diverso da questi caratteri
@@ -1173,5 +1745,4 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 	}
 	return 0;	
 }
-
 
