@@ -76,12 +76,19 @@ const int numSteps12 = 9;
 // ---------- STEP PER BRACCIO PER ROTAZIONE CUBO --------
 int stepsorienta1[] = {76, 79, 120, 111};     // Servo1
 int stepsorienta2[] = {125, 123, 122, 95};  // Servo2
-const int numStepsorienta12 = 4;
+const int numStepsorienta = 4;
+//const int numStepsorienta12 = 4; l'ho passivato perchè solo qua l'ha chiamato numStepsorienta12 quando ovunque il richiamo è numStepsorienta, come impostato ora sopra 
 
 // ------------------- IMPOSTAZIONI GENERALI -------------------
 const int interpSteps = 30;
 const int interpDelay = 20;
 const int delayStep = 800;
+//-----------------NON SO COSA FACCIANO STE VARIABILI MA VANNO MESSE FUORI DAL SETUP----------------
+int posizioneRiposo1=169;
+int posizioneRiposo2=8;
+
+int posizioneRiposoA=169;
+int posizioneRiposoB=8;
 
 // ------------------- FUNZIONE MOVIMENTO FLUIDO SINCRONO PER DUE SERVO -------------------
 void moveSmoothSync(Servo &servoA, int fromA, int toA, Servo &servoB, int fromB, int toB, int steps = interpSteps, int delayT = interpDelay) {
@@ -396,11 +403,6 @@ void setup() {
 //stepper
 	motore.setSpeed(150);
 
-	int posizioneRiposo1=169;
-	int posizioneRiposo2=8;
-
-	int posizioneRiposoA=169;
-	int posizioneRiposoB=8;
 }
 
 void loop() {//funzione contenente le 4 fasi principali della risoluzione del cubo di Rubik
@@ -1014,7 +1016,7 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][1];//associo a b l'informazione della zona "p"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "p"
 				vertici_ins[i][1]=a;//metto in zona "p" l'ultima informazione di buffer
-				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);ù
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				perm();//stampa la permutazione dei vertici
@@ -1213,9 +1215,9 @@ int commutazioni_ver(int d, int i, int vertici_ins[8][3]){//parte di programma c
 				b=vertici_ins[i][2];//associo a b l'informazione della zona "v"
 				vertici_ins[0][2]=b;//metto in ultima zona buffer l'informazione della zona "v"
 				vertici_ins[i][2]=a;//metto in zona "v" l'ultima informazione di buffer
-				//cubo giÃƒÆ’Ã‚Â  in posizione
+				//cubo già  in posizione
 				perm();//stampa la permutazione dei vertici
-				//cubo giÃƒÆ’Ã‚Â  rimesso a posto
+				//cubo già  rimesso a posto
 				break;//esce dallo switch
 			}
 			case 7:{//se i è uguale a 7, avvia la risoluzione per la posizione "s"
@@ -1477,12 +1479,12 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
-        action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+     				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
-        action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+        			action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
-        rotate180();
-        action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+        			rotate180();
+        			action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
@@ -1493,7 +1495,7 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 			case 2:{//se i è uguale a 2,si avvia la risoluzione per la posizione c
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
-        rotate180();
+        			rotate180();
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
@@ -1501,7 +1503,7 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
-        action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+        			action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
@@ -1666,9 +1668,25 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 	else if(d==1){//se la posizione scombinata è quella dell'ultima informazione della cella
 		switch(i){
 			case 0:{//se i è uguale a 0, si avvia la risoluzione per la posizione m
-				printf("3 move to sx\n action 90\n rotate 90\n 3 move to sx\n action 270\n 3 move to sx\n action 180\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 180\n move to sx\n action 90\n move to sx\n rotate 270\n action 270\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 1:{//se i è uguale a 1 (impossibile ma la mettiamo lo stesso), avvia la risoluzione per la posizione i
@@ -1676,63 +1694,161 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 				break;//esce dallo switch
 			}
 			case 2:{//se i è uguale a 2, si avvia la risoluzione per la posizione e
-				printf("3 move to sx\n action 270\n rotate 90\n move to sx\n action 90\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 270\n action 90\n move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 3:{//se i è uguale a 3, si avvia la risoluzione per la posizione q
-				printf("move to sx\n action 270\n move to sx\n action 90\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 270\n 3 move to sx\n action 90\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 4:{//se i è uguale a 4, si avvia la risoluzione per la posizione l
-				printf("2 move to sx\n action 90\n rotate 90\n move to sx\n action 90\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 270\n action 270\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 5:{//se i è uguale a 5, si avvia la risoluzione per la soluzione u
-				printf("action 90\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 180\n 3 move to sx\n action 270\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 6:{//se i è uguale a 6, si avvia la risoluzione per la soluzione r
-				printf("2 move to sx\n action 90\n rotate 90\n move to sx\n action 270\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate90();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 90\n 3 move to sx\n rotate 270\n action 270\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate270();
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 7:{//se i è uguale a 7, si avvia la risoluzione per la soluzione p
-				printf("2 move to sx\n action 180\n move to sx\n action 90\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 270\n 3 move to sx\n action 180\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 8:{//se i è uguale a 8, si avvia la risoluzione per la soluzione v
-				printf("action 180\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 180\n 3 move to sx\n action 180\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 9:{//se i è uguale a 9, si avvia la risoluzione per la soluzione t
-				printf("2 move to sx\n action 270\n rotate 270\n move to sx\n action 90\n move to sx\n rotate 180\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				rotate270();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate180();
 				t_perm();//svolge la t perm
-				printf("rotate 180\n 3 move to sx\n action 270\n 3 move to sx\n rotate 90\n action 90\n 2 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				rotate180();
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				rotate90();
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			case 10:{//se i è uguale a 10, si avvia la risoluzione per la soluzione x
-				printf("action 270\n move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				action270(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 180\n 3 move to sx\n action 90\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action90(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
 				break;//esce dallo switch
 			}
 			case 11:{//se i è uguale a 11, si avvia la risoluzione per la soluzione z
-				printf("move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				t_perm();//svolge la t perm
-				printf("move to sx\n action 180\n 3 move to sx\n\n");//stampa i movimenti per portare l'obbiettivo a posto
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
+				action180(servo1, stepsorienta1, servo2, stepsorienta2, numStepsorienta, posizioneRiposo1, posizioneRiposo2);
+				Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);Movesx(servo1, steps1, servo2, steps2, 9, 169, 8);
 				break;//esce dallo switch
 			}
 			default: //se in i c'è qualcosa di diverso da questi caratteri
@@ -1745,4 +1861,3 @@ int commutazioni(int d, int i){//funzione per togliere moltre stringhe di codice
 	}
 	return 0;	
 }
-
